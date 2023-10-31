@@ -3,6 +3,8 @@ import './App.scss';
 import TodoList from './components/TodoList';
 import TodoForm from './components/TodoForm';
 import PostList from './components/PostList';
+import Pagination from './components/Pagination';
+import queryString from 'query-string';
 
 function App() {
   const [todoList, setTodoList] = useState(() => {
@@ -17,16 +19,39 @@ function App() {
 
   const [postList, setPostList] = useState([]);
 
+  const [pagination, setPagination] = useState({
+    _page: 1,
+    _limit: 10,
+    _totalRows: 1,
+  });
+
+  // State for filters
+  const [filters, setFilters] = useState({
+    _limit: 10,
+    _page: 1,
+    // ...other filters(_searchTearm, sort,...)
+  });
+
+  function handlePageChange(newPage) {
+    // Call API to re-fetch data with newPage
+    setFilters({
+      ...filters,
+      _page: newPage,
+    });
+  }
+
   useEffect(() => {
     async function fetchPostList() {
       try {
-        const requestUrl = 'https://js-post-api.herokuapp.com/api/posts?_limit=10&_page=1';
+        const queryParams = queryString.stringify(filters); // --> '_limit=10&_page=1'
+        const requestUrl = `https://js-post-api.herokuapp.com/api/posts?${queryParams}`;
         const response = await fetch(requestUrl);
         const responseJSON = await response.json();
         console.log('responseJSON', responseJSON);
 
-        const { data } = responseJSON;
+        const { data, pagination } = responseJSON;
         setPostList(data);
+        setPagination(pagination);
       } catch (error) {
         console.log('Failed to fetch post list');
       }
@@ -34,7 +59,7 @@ function App() {
 
     console.log('POST list effect');
     fetchPostList();
-  }, []);
+  }, [filters]);
 
   useEffect(() => {
     console.log('TODO list effect');
@@ -65,6 +90,7 @@ function App() {
       <h1>React Hooks - Post List</h1>
 
       <PostList posts={postList} />
+      <Pagination pagination={pagination} onPageChange={handlePageChange} />
       {/* <TodoForm onSubmit={handleTodoFormSubmit} />
       <TodoList todos={todoList} onTodoClick={handleTodoClick} /> */}
     </div>
