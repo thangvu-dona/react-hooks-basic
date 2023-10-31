@@ -1,9 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-
-Clock.propTypes = {
-
-};
+import { useEffect, useState } from 'react';
 
 function formatDate(date) {
   const hours = `0${date.getHours()}`.slice(-2);
@@ -13,7 +8,10 @@ function formatDate(date) {
   return `${hours}:${minutes}:${seconds}`;
 }
 
-function Clock() {
+// Custom Hook
+// can use other hooks
+// separate Logic and UI
+function useClock() {
   const [timeString, setTimeString] = useState('');
 
   useEffect(() => {
@@ -32,9 +30,7 @@ function Clock() {
     };
   }, []);
 
-  return (
-    <p style={{ fontSize: '42px', margin: '20px 0' }}>{timeString}</p>
-  );
+  return { timeString };
 }
 
-export default Clock;
+export default useClock;
